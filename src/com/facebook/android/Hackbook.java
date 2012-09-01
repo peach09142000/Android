@@ -153,7 +153,7 @@ public class Hackbook extends Activity implements OnItemClickListener {
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-                        params.putString("caption", "FbAPIs Sample App photo upload");
+                        params.putString("caption", "140,112");
                         Utility.mAsyncRunner.request("me/photos", params, "POST",
                                 new PhotoUploadListener(), null);
                     } else {
