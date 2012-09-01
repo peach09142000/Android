@@ -41,11 +41,16 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.hardware.Camera;
+import android.hardware.Camera.PictureCallback;
+import android.hardware.Camera.ShutterCallback;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 
 import com.facebook.android.SessionEvents.AuthListener;
 import com.facebook.android.SessionEvents.LogoutListener;
 
-public class Hackbook extends Activity implements OnItemClickListener {
+public class Hackbook extends Activity implements OnItemClickListener,SurfaceHolder.Callback{
 
     /*
      * Your Facebook Application ID must be set before running this example See
@@ -56,8 +61,12 @@ public class Hackbook extends Activity implements OnItemClickListener {
     private LoginButton mLoginButton;
     private TextView mText;
     private ImageView mUserPic;
-    private Handler mHandler;
+    private Handler mHandler;    
     ProgressDialog dialog;
+    
+    private Camera mCamera;
+    private SurfaceView mSurfaceView;
+    private SurfaceHolder mSurfaceHolder;
 
     final static int AUTHORIZE_ACTIVITY_RESULT_CODE = 0;
     final static int PICK_EXISTING_PHOTO_RESULT_CODE = 1;
@@ -111,6 +120,10 @@ public class Hackbook extends Activity implements OnItemClickListener {
 
         list.setOnItemClickListener(this);
         list.setAdapter(new ArrayAdapter<String>(this, R.layout.main_list_item, main_items));
+        
+        mSurfaceView = (SurfaceView) findViewById(R.id.surface_view);
+        mSurfaceHolder = mSurfaceView.getHolder();
+        mSurfaceHolder.addCallback(this);
     }
 
     @Override
@@ -417,5 +430,24 @@ public class Hackbook extends Activity implements OnItemClickListener {
     class ViewHolder {
         TextView main_list_item;
     }
+
+	@Override
+	public void surfaceChanged(SurfaceHolder holder, int format, int width,
+			int height) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void surfaceCreated(SurfaceHolder holder) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void surfaceDestroyed(SurfaceHolder holder) {
+		// TODO Auto-generated method stub
+		
+	}
 
 }

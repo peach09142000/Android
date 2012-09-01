@@ -1,5 +1,6 @@
 package com.facebook.android;
 
+
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -7,7 +8,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
-public class SplashActivity extends Activity {
+
+public class SplashActivity extends Activity{
     private long splashDelay = 1500;
 
     @Override
@@ -26,4 +28,5 @@ public class SplashActivity extends Activity {
         Timer timer = new Timer();
         timer.schedule(task, splashDelay);
     }
+
 }
