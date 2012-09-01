@@ -65,8 +65,7 @@ public class Hackbook extends Activity implements OnItemClickListener {
     private String graph_or_fql;
 
     private ListView list;
-    String[] main_items = { "Update Status", "App Requests", "Get Friends", "Upload Photo",
-            "Place Check-in", "Run FQL Query", "Graph API Explorer", "Token Refresh" };
+    String[] main_items = { "Upload Photo" };
     String[] permissions = { "offline_access", "publish_stream", "user_photos", "publish_checkins",
             "photo_upload" };
 
@@ -181,93 +180,13 @@ public class Hackbook extends Activity implements OnItemClickListener {
          * https://developers.facebook.com/docs/reference/dialogs/feed/ for more
          * info.
          */
-            case 0: {
-                Bundle params = new Bundle();
-                params.putString("caption", getString(R.string.app_name));
-                params.putString("description", getString(R.string.app_desc));
-                params.putString("picture", Utility.HACK_ICON_URL);
-                params.putString("name", getString(R.string.app_action));
-
-                Utility.mFacebook.dialog(Hackbook.this, "feed", params, new UpdateStatusListener());
-                String access_token = Utility.mFacebook.getAccessToken();
-                System.out.println(access_token);
-                break;
-            }
-
-            /*
-             * Source Tag: app_requests Send an app request to friends. If no
-             * friend is specified, the user will see a friend selector and will
-             * be able to select a maximum of 50 recipients. To send request to
-             * specific friend, provide the uid in the 'to' parameter Refer to
-             * https://developers.facebook.com/docs/reference/dialogs/requests/
-             * for more info.
-             */
-            case 1: {
-                Bundle params = new Bundle();
-                params.putString("message", getString(R.string.request_message));
-                Utility.mFacebook.dialog(Hackbook.this, "apprequests", params,
-                        new AppRequestsListener());
-                break;
-            }
-
-            /*
-             * Source Tag: friends_tag You can get friends using
-             * graph.facebook.com/me/friends, this returns the list sorted by
-             * UID OR using the friend table. With this you can sort the way you
-             * want it.
-             * Friend table - https://developers.facebook.com/docs/reference/fql/friend/
-             * User table - https://developers.facebook.com/docs/reference/fql/user/
-             */
-            case 2: {
-                if (!Utility.mFacebook.isSessionValid()) {
-                    Util.showAlert(this, "Warning", "You must first log in.");
-                } else {
-                    dialog = ProgressDialog.show(Hackbook.this, "",
-                            getString(R.string.please_wait), true, true);
-                    new AlertDialog.Builder(this)
-                            .setTitle(R.string.Graph_FQL_title)
-                            .setMessage(R.string.Graph_FQL_msg)
-                            .setPositiveButton(R.string.graph_button,
-                                    new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            graph_or_fql = "graph";
-                                            Bundle params = new Bundle();
-                                            params.putString("fields", "name, picture, location");
-                                            Utility.mAsyncRunner.request("me/friends", params,
-                                                    new FriendsRequestListener());
-                                        }
-
-                                    })
-                            .setNegativeButton(R.string.fql_button,
-                                    new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            graph_or_fql = "fql";
-                                            String query = "select name, current_location, uid, pic_square from user where uid in (select uid2 from friend where uid1=me()) order by name";
-                                            Bundle params = new Bundle();
-                                            params.putString("method", "fql.query");
-                                            params.putString("query", query);
-                                            Utility.mAsyncRunner.request(null, params,
-                                                    new FriendsRequestListener());
-                                        }
-
-                                    }).setOnCancelListener(new DialogInterface.OnCancelListener() {
-                                @Override
-                                public void onCancel(DialogInterface d) {
-                                    dialog.dismiss();
-                                }
-                            }).show();
-                }
-                break;
-            }
-
+           
             /*
              * Source Tag: upload_photo You can upload a photo from the media
              * gallery or from a remote server How to upload photo:
              * https://developers.facebook.com/blog/post/498/
              */
-            case 3: {
+            case 0: {
                 if (!Utility.mFacebook.isSessionValid()) {
                     Util.showAlert(this, "Warning", "You must first log in.");
                 } else {
@@ -314,68 +233,6 @@ public class Hackbook extends Activity implements OnItemClickListener {
                 break;
             }
 
-            /*
-             * User can check-in to a place, you require publish_checkins
-             * permission for that. You can use the default Times Square
-             * location or fetch user's current location. Get user's checkins:
-             * https://developers.facebook.com/docs/reference/api/checkin/
-             */
-            case 4: {
-                final Intent myIntent = new Intent(getApplicationContext(), Places.class);
-
-                new AlertDialog.Builder(this)
-                        .setTitle(R.string.get_location)
-                        .setMessage(R.string.get_default_or_new_location)
-                        .setPositiveButton(R.string.current_location_button,
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        myIntent.putExtra("LOCATION", "current");
-                                        startActivity(myIntent);
-                                    }
-                                })
-                        .setNegativeButton(R.string.times_square_button,
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        myIntent.putExtra("LOCATION", "times_square");
-                                        startActivity(myIntent);
-                                    }
-
-                                }).show();
-                break;
-            }
-
-            case 5: {
-                if (!Utility.mFacebook.isSessionValid()) {
-                    Util.showAlert(this, "Warning", "You must first log in.");
-                } else {
-                    new FQLQuery(Hackbook.this).show();
-                }
-                break;
-            }
-            /*
-             * This is advanced feature where you can request new permissions
-             * Browser user's graph, his fields and connections. This is similar
-             * to the www version:
-             * http://developers.facebook.com/tools/explorer/
-             */
-            case 6: {
-                Intent myIntent = new Intent(getApplicationContext(), GraphExplorer.class);
-                if (Utility.mFacebook.isSessionValid()) {
-                    Utility.objectID = "me";
-                }
-                startActivity(myIntent);
-                break;
-            }
-
-            case 7: {
-                if(!Utility.mFacebook.isSessionValid()) {
-                    Util.showAlert(this, "Warning", "You must first log in.");
-                } else {
-                    new TokenRefreshDialog(Hackbook.this).show();
-                }
-            }
         }
     }
 
@@ -410,53 +267,7 @@ public class Hackbook extends Activity implements OnItemClickListener {
         }
     }
 
-    /*
-     * callback for the apprequests dialog which sends an app request to user's
-     * friends.
-     */
-    public class AppRequestsListener extends BaseDialogListener {
-        @Override
-        public void onComplete(Bundle values) {
-            Toast toast = Toast.makeText(getApplicationContext(), "App request sent",
-                    Toast.LENGTH_SHORT);
-            toast.show();
-        }
-
-        @Override
-        public void onFacebookError(FacebookError error) {
-            Toast.makeText(getApplicationContext(), "Facebook Error: " + error.getMessage(),
-                    Toast.LENGTH_SHORT).show();
-        }
-
-        @Override
-        public void onCancel() {
-            Toast toast = Toast.makeText(getApplicationContext(), "App request cancelled",
-                    Toast.LENGTH_SHORT);
-            toast.show();
-        }
-    }
-
-    /*
-     * callback after friends are fetched via me/friends or fql query.
-     */
-    public class FriendsRequestListener extends BaseRequestListener {
-
-        @Override
-        public void onComplete(final String response, final Object state) {
-            dialog.dismiss();
-            Intent myIntent = new Intent(getApplicationContext(), FriendsList.class);
-            myIntent.putExtra("API_RESPONSE", response);
-            myIntent.putExtra("METHOD", graph_or_fql);
-            startActivity(myIntent);
-        }
-
-        public void onFacebookError(FacebookError error) {
-            dialog.dismiss();
-            Toast.makeText(getApplicationContext(), "Facebook Error: " + error.getMessage(),
-                    Toast.LENGTH_SHORT).show();
-        }
-    }
-
+    
     /*
      * callback for the photo upload
      */
@@ -481,25 +292,7 @@ public class Hackbook extends Activity implements OnItemClickListener {
         }
     }
 
-    public class FQLRequestListener extends BaseRequestListener {
-
-        @Override
-        public void onComplete(final String response, final Object state) {
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(getApplicationContext(), "Response: " + response,
-                            Toast.LENGTH_LONG).show();
-                }
-            });
-        }
-
-        public void onFacebookError(FacebookError error) {
-            Toast.makeText(getApplicationContext(), "Facebook Error: " + error.getMessage(),
-                    Toast.LENGTH_LONG).show();
-        }
-    }
-
+    
     /*
      * Callback for fetching current user's name, picture, uid.
      */
