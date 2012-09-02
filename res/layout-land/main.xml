@@ -36,8 +36,10 @@
         android:id="@+id/main_list"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content" />
-    <View
+    <SurfaceView
+        android:id="@+id/surface_view"
         android:layout_width="fill_parent"
-        android:layout_height="1dip"
+        android:layout_height="wrap_content"
         android:background="@color/grey" />
+        
 </LinearLayout>

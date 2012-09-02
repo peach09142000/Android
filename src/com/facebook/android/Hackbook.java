@@ -67,6 +67,7 @@ public class Hackbook extends Activity implements OnItemClickListener,SurfaceHol
     private Camera mCamera;
     private SurfaceView mSurfaceView;
     private SurfaceHolder mSurfaceHolder;
+    boolean previewing = true;
 
     final static int AUTHORIZE_ACTIVITY_RESULT_CODE = 0;
     final static int PICK_EXISTING_PHOTO_RESULT_CODE = 1;
@@ -124,6 +125,24 @@ public class Hackbook extends Activity implements OnItemClickListener,SurfaceHol
         mSurfaceView = (SurfaceView) findViewById(R.id.surface_view);
         mSurfaceHolder = mSurfaceView.getHolder();
         mSurfaceHolder.addCallback(this);
+        mSurfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+        
+        if(!previewing){     
+        	mCamera = Camera.open();     
+        	if (mCamera != null){      
+        		try {       
+        			mCamera.setPreviewDisplay(mSurfaceHolder);       
+        			mCamera.startPreview();       
+        			previewing = true;      
+        			} catch (IOException e) 
+        			{       // TODO Auto-generated catch block       
+        				e.printStackTrace();      
+        			}    
+        		}
+        	}
+        
+        
+        
     }
 
     @Override
